@@ -78,6 +78,7 @@ venv
 .venv
 Pipfile*
 share/*
+Scripts/
 
 # vimmy stuff
 *.swp
@@ -107,3 +108,6 @@ desktop.ini
 
 # Secrets
 .lokalise_token
+
+# monkeytype
+monkeytype.sqlite3

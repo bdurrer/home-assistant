@@ -21,7 +21,8 @@ REQUIREMENTS = ['nsapi==2.7.4']
 
 _LOGGER = logging.getLogger(__name__)
 
-CONF_ATTRIBUTION = "Data provided by NS"
+ATTRIBUTION = "Data provided by NS"
+
 CONF_ROUTES = 'routes'
 CONF_FROM = 'from'
 CONF_TO = 'to'
@@ -48,7 +49,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 })
 
 
-def setup_platform(hass, config, add_devices, discovery_info=None):
+def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the departure sensor."""
     import ns_api
     nsapi = ns_api.NSAPI(
@@ -72,7 +73,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
                 nsapi, departure.get(CONF_NAME), departure.get(CONF_FROM),
                 departure.get(CONF_TO), departure.get(CONF_VIA)))
     if sensors:
-        add_devices(sensors, True)
+        add_entities(sensors, True)
 
 
 def valid_stations(stations, given_stations):
@@ -155,7 +156,7 @@ class NSDepartureSensor(Entity):
             'transfers': self._trips[0].nr_transfers,
             'route': route,
             'remarks': [r.message for r in self._trips[0].trip_remarks],
-            ATTR_ATTRIBUTION: CONF_ATTRIBUTION,
+            ATTR_ATTRIBUTION: ATTRIBUTION,
         }
 
     @Throttle(MIN_TIME_BETWEEN_UPDATES)

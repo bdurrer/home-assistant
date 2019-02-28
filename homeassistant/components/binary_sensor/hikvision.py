@@ -18,7 +18,7 @@ from homeassistant.const import (
     CONF_SSL, EVENT_HOMEASSISTANT_STOP, EVENT_HOMEASSISTANT_START,
     ATTR_LAST_TRIP_TIME, CONF_CUSTOMIZE)
 
-REQUIREMENTS = ['pyhik==0.1.8']
+REQUIREMENTS = ['pyhik==0.2.2']
 _LOGGER = logging.getLogger(__name__)
 
 CONF_IGNORED = 'ignored'
@@ -51,6 +51,8 @@ DEVICE_CLASS_MAP = {
     'Unattended Baggage': 'motion',
     'Attended Baggage': 'motion',
     'Recording Failure': None,
+    'Exiting Region': 'motion',
+    'Entering Region': 'motion',
 }
 
 CUSTOMIZE_SCHEMA = vol.Schema({
@@ -90,7 +92,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     data = HikvisionData(hass, url, port, name, username, password)
 
     if data.sensors is None:
-        _LOGGER.error("Hikvision event stream has no data, unable to setup")
+        _LOGGER.error("Hikvision event stream has no data, unable to set up")
         return False
 
     entities = []
@@ -117,7 +119,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     add_entities(entities)
 
 
-class HikvisionData(object):
+class HikvisionData:
     """Hikvision device event stream object."""
 
     def __init__(self, hass, url, port, name, username, password):

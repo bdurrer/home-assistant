@@ -26,7 +26,7 @@ ATTR_SENSOR_ID = 'sensor_id'
 ATTR_SITE_ID = 'site_id'
 ATTR_SITE_NAME = 'site_name'
 
-CONF_ATTRIBUTION = "Data provided by the Met Office"
+ATTRIBUTION = "Data provided by the Met Office"
 
 CONDITION_CLASSES = {
     'cloudy': ['7', '8'],
@@ -86,7 +86,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 })
 
 
-def setup_platform(hass, config, add_devices, discovery_info=None):
+def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the Met Office sensor platform."""
     import datapoint as dp
 
@@ -121,7 +121,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     for variable in config[CONF_MONITORED_CONDITIONS]:
         sensors.append(MetOfficeCurrentSensor(site, data, variable, name))
 
-    add_devices(sensors, True)
+    add_entities(sensors, True)
 
 
 class MetOfficeCurrentSensor(Entity):
@@ -162,7 +162,7 @@ class MetOfficeCurrentSensor(Entity):
     def device_state_attributes(self):
         """Return the state attributes of the device."""
         attr = {}
-        attr[ATTR_ATTRIBUTION] = CONF_ATTRIBUTION
+        attr[ATTR_ATTRIBUTION] = ATTRIBUTION
         attr[ATTR_LAST_UPDATE] = self.data.data.date
         attr[ATTR_SENSOR_ID] = self._condition
         attr[ATTR_SITE_ID] = self.site.id
@@ -174,7 +174,7 @@ class MetOfficeCurrentSensor(Entity):
         self.data.update()
 
 
-class MetOfficeCurrentData(object):
+class MetOfficeCurrentData:
     """Get data from Datapoint."""
 
     def __init__(self, hass, datapoint, site):

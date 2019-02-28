@@ -1,9 +1,4 @@
-"""
-Component to interact with Remember The Milk.
-
-For more details about this component, please refer to the documentation at
-https://home-assistant.io/components/remember_the_milk/
-"""
+"""Support to interact with Remember The Milk."""
 import json
 import logging
 import os
@@ -138,7 +133,7 @@ def _register_new_account(hass, account_name, api_key, shared_secret,
     )
 
 
-class RememberTheMilkConfiguration(object):
+class RememberTheMilkConfiguration:
     """Internal configuration data for RememberTheMilk class.
 
     This class stores the authentication token it get from the backend.

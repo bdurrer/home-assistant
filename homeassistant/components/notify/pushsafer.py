@@ -32,6 +32,10 @@ ATTR_ICONCOLOR = 'iconcolor'
 ATTR_URL = 'url'
 ATTR_URLTITLE = 'urltitle'
 ATTR_TIME2LIVE = 'time2live'
+ATTR_PRIORITY = 'priority'
+ATTR_RETRY = 'retry'
+ATTR_EXPIRE = 'expire'
+ATTR_ANSWER = 'answer'
 ATTR_PICTURE1 = 'picture1'
 
 # Attributes contained in picture1
@@ -106,6 +110,10 @@ class PushsaferNotificationService(BaseNotificationService):
             'u': data.get(ATTR_URL, ""),
             'ut': data.get(ATTR_URLTITLE, ""),
             'l': data.get(ATTR_TIME2LIVE, ""),
+            'pr': data.get(ATTR_PRIORITY, ""),
+            're': data.get(ATTR_RETRY, ""),
+            'ex': data.get(ATTR_EXPIRE, ""),
+            'a': data.get(ATTR_ANSWER, ""),
             'p': picture1_encoded
         }
 
@@ -141,8 +149,7 @@ class PushsaferNotificationService(BaseNotificationService):
                 response = requests.get(url, timeout=CONF_TIMEOUT)
             return self.get_base64(response.content,
                                    response.headers['content-type'])
-        else:
-            _LOGGER.warning("url not found in param")
+        _LOGGER.warning("url not found in param")
 
         return None
 

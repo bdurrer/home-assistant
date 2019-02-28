@@ -1,10 +1,4 @@
-"""
-A sensor that monitors trends in other components.
-
-For more details about this platform, please refer to the documentation at
-https://home-assistant.io/components/sensor.trend/
-"""
-import asyncio
+"""A sensor that monitors trends in other components."""
 from collections import deque
 import logging
 import math
@@ -16,14 +10,14 @@ from homeassistant.components.binary_sensor import (
     BinarySensorDevice)
 from homeassistant.const import (
     ATTR_ENTITY_ID, ATTR_FRIENDLY_NAME, CONF_DEVICE_CLASS, CONF_ENTITY_ID,
-    CONF_FRIENDLY_NAME, STATE_UNKNOWN)
+    CONF_FRIENDLY_NAME, STATE_UNKNOWN, CONF_SENSORS)
 from homeassistant.core import callback
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.helpers.event import async_track_state_change
 from homeassistant.util import utcnow
 
-REQUIREMENTS = ['numpy==1.14.2']
+REQUIREMENTS = ['numpy==1.16.2']
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -39,7 +33,6 @@ CONF_INVERT = 'invert'
 CONF_MAX_SAMPLES = 'max_samples'
 CONF_MIN_GRADIENT = 'min_gradient'
 CONF_SAMPLE_DURATION = 'sample_duration'
-CONF_SENSORS = 'sensors'
 
 SENSOR_SCHEMA = vol.Schema({
     vol.Required(CONF_ENTITY_ID): cv.entity_id,
@@ -53,12 +46,11 @@ SENSOR_SCHEMA = vol.Schema({
 })
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
-    vol.Required(CONF_SENSORS): vol.Schema({cv.slug: SENSOR_SCHEMA}),
+    vol.Required(CONF_SENSORS): cv.schema_with_slug_keys(SENSOR_SCHEMA),
 })
 
 
-# pylint: disable=unused-argument
-def setup_platform(hass, config, add_devices, discovery_info=None):
+def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the trend sensors."""
     sensors = []
 
@@ -80,9 +72,8 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
             )
     if not sensors:
         _LOGGER.error("No sensors added")
-        return False
-    add_devices(sensors)
-    return True
+        return
+    add_entities(sensors)
 
 
 class SensorTrend(BinarySensorDevice):
@@ -139,8 +130,7 @@ class SensorTrend(BinarySensorDevice):
         """No polling needed."""
         return False
 
-    @asyncio.coroutine
-    def async_added_to_hass(self):
+    async def async_added_to_hass(self):
         """Complete device setup after being added to hass."""
         @callback
         def trend_sensor_state_listener(entity, old_state, new_state):
@@ -161,8 +151,7 @@ class SensorTrend(BinarySensorDevice):
             self.hass, self._entity_id,
             trend_sensor_state_listener)
 
-    @asyncio.coroutine
-    def async_update(self):
+    async def async_update(self):
         """Get the latest data and update the states."""
         # Remove outdated samples
         if self._sample_duration > 0:
@@ -174,7 +163,7 @@ class SensorTrend(BinarySensorDevice):
             return
 
         # Calculate gradient of linear trend
-        yield from self.hass.async_add_job(self._calculate_gradient)
+        await self.hass.async_add_job(self._calculate_gradient)
 
         # Update state
         self._state = (

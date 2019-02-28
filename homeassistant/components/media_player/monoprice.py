@@ -9,9 +9,11 @@ import logging
 import voluptuous as vol
 
 from homeassistant.components.media_player import (
-    DOMAIN, MEDIA_PLAYER_SCHEMA, PLATFORM_SCHEMA, SUPPORT_SELECT_SOURCE,
+    MediaPlayerDevice, MEDIA_PLAYER_SCHEMA, PLATFORM_SCHEMA)
+from homeassistant.components.media_player.const import (
+    DOMAIN, SUPPORT_SELECT_SOURCE,
     SUPPORT_TURN_OFF, SUPPORT_TURN_ON, SUPPORT_VOLUME_MUTE, SUPPORT_VOLUME_SET,
-    SUPPORT_VOLUME_STEP, MediaPlayerDevice)
+    SUPPORT_VOLUME_STEP)
 from homeassistant.const import (
     ATTR_ENTITY_ID, CONF_NAME, CONF_PORT, STATE_OFF, STATE_ON)
 import homeassistant.helpers.config_validation as cv
@@ -55,8 +57,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 })
 
 
-# pylint: disable=unused-argument
-def setup_platform(hass, config, add_devices, discovery_info=None):
+def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the Monoprice 6-zone amplifier platform."""
     port = config.get(CONF_PORT)
 
@@ -77,7 +78,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         hass.data[DATA_MONOPRICE].append(MonopriceZone(
             monoprice, sources, zone_id, extra[CONF_NAME]))
 
-    add_devices(hass.data[DATA_MONOPRICE], True)
+    add_entities(hass.data[DATA_MONOPRICE], True)
 
     def service_handle(service):
         """Handle for services."""

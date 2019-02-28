@@ -45,7 +45,7 @@ SENSOR_SCHEMA = vol.Schema({
 })
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
-    vol.Required(CONF_SENSORS): vol.Schema({cv.slug: SENSOR_SCHEMA}),
+    vol.Required(CONF_SENSORS): cv.schema_with_slug_keys(SENSOR_SCHEMA),
     vol.Optional(CONF_BAUD, default=DEFAULT_BAUD): cv.string,
     vol.Optional(CONF_DATARATE): cv.positive_int,
     vol.Optional(CONF_DEVICE, default=DEFAULT_DEVICE): cv.string,
@@ -56,7 +56,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 })
 
 
-def setup_platform(hass, config, add_devices, discovery_info=None):
+def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the LaCrosse sensors."""
     import pylacrosse
     from serial import SerialException
@@ -103,7 +103,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
             )
         )
 
-    add_devices(sensors)
+    add_entities(sensors)
 
 
 class LaCrosseSensor(Entity):

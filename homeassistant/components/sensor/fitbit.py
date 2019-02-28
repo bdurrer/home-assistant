@@ -35,7 +35,7 @@ ATTR_LAST_SAVED_AT = 'last_saved_at'
 
 CONF_MONITORED_RESOURCES = 'monitored_resources'
 CONF_CLOCK_FORMAT = 'clock_format'
-CONF_ATTRIBUTION = 'Data provided by Fitbit.com'
+ATTRIBUTION = 'Data provided by Fitbit.com'
 
 DEPENDENCIES = ['http']
 
@@ -151,12 +151,11 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 })
 
 
-def request_app_setup(hass, config, add_devices, config_path,
+def request_app_setup(hass, config, add_entities, config_path,
                       discovery_info=None):
     """Assist user with configuring the Fitbit dev application."""
     configurator = hass.components.configurator
 
-    # pylint: disable=unused-argument
     def fitbit_configuration_callback(callback_data):
         """Handle configuration updates."""
         config_path = hass.config.path(FITBIT_CONFIG_FILE)
@@ -168,9 +167,9 @@ def request_app_setup(hass, config, add_devices, config_path,
                 configurator.notify_errors(_CONFIGURING['fitbit'],
                                            error_msg)
             else:
-                setup_platform(hass, config, add_devices, discovery_info)
+                setup_platform(hass, config, add_entities, discovery_info)
         else:
-            setup_platform(hass, config, add_devices, discovery_info)
+            setup_platform(hass, config, add_entities, discovery_info)
 
     start_url = "{}{}".format(hass.config.api.base_url,
                               FITBIT_AUTH_CALLBACK_PATH)
@@ -202,7 +201,6 @@ def request_oauth_completion(hass):
 
         return
 
-    # pylint: disable=unused-argument
     def fitbit_configuration_callback(callback_data):
         """Handle configuration updates."""
 
@@ -217,19 +215,19 @@ def request_oauth_completion(hass):
     )
 
 
-def setup_platform(hass, config, add_devices, discovery_info=None):
+def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the Fitbit sensor."""
     config_path = hass.config.path(FITBIT_CONFIG_FILE)
     if os.path.isfile(config_path):
         config_file = load_json(config_path)
         if config_file == DEFAULT_CONFIG:
             request_app_setup(
-                hass, config, add_devices, config_path, discovery_info=None)
+                hass, config, add_entities, config_path, discovery_info=None)
             return False
     else:
-        config_file = save_json(config_path, DEFAULT_CONFIG)
+        save_json(config_path, DEFAULT_CONFIG)
         request_app_setup(
-            hass, config, add_devices, config_path, discovery_info=None)
+            hass, config, add_entities, config_path, discovery_info=None)
         return False
 
     if "fitbit" in _CONFIGURING:
@@ -278,7 +276,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
                 dev.append(FitbitSensor(
                     authd_client, config_path, resource,
                     hass.config.units.is_metric, clock_format))
-        add_devices(dev, True)
+        add_entities(dev, True)
 
     else:
         oauth = fitbit.api.FitbitOauth2Client(
@@ -295,7 +293,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
         hass.http.register_redirect(FITBIT_AUTH_START, fitbit_auth_start_url)
         hass.http.register_view(FitbitAuthCallbackView(
-            config, add_devices, oauth))
+            config, add_entities, oauth))
 
         request_oauth_completion(hass)
 
@@ -307,10 +305,10 @@ class FitbitAuthCallbackView(HomeAssistantView):
     url = FITBIT_AUTH_CALLBACK_PATH
     name = 'api:fitbit:callback'
 
-    def __init__(self, config, add_devices, oauth):
+    def __init__(self, config, add_entities, oauth):
         """Initialize the OAuth callback view."""
         self.config = config
-        self.add_devices = add_devices
+        self.add_entities = add_entities
         self.oauth = oauth
 
     @callback
@@ -370,7 +368,8 @@ class FitbitAuthCallbackView(HomeAssistantView):
             }
         save_json(hass.config.path(FITBIT_CONFIG_FILE), config_contents)
 
-        hass.async_add_job(setup_platform, hass, self.config, self.add_devices)
+        hass.async_add_job(setup_platform, hass, self.config,
+                           self.add_entities)
 
         return html_response
 
@@ -424,8 +423,8 @@ class FitbitSensor(Entity):
         """Icon to use in the frontend, if any."""
         if self.resource_type == 'devices/battery' and self.extra:
             battery_level = BATTERY_LEVELS[self.extra.get('battery')]
-            return icon_for_battery_level(battery_level=battery_level,
-                                          charging=None)
+            return icon_for_battery_level(
+                battery_level=battery_level, charging=None)
         return 'mdi:{}'.format(FITBIT_RESOURCES_LIST[self.resource_type][2])
 
     @property
@@ -433,7 +432,7 @@ class FitbitSensor(Entity):
         """Return the state attributes."""
         attrs = {}
 
-        attrs[ATTR_ATTRIBUTION] = CONF_ATTRIBUTION
+        attrs[ATTR_ATTRIBUTION] = ATTRIBUTION
 
         if self.extra:
             attrs['model'] = self.extra.get('deviceVersion')

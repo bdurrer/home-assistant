@@ -22,8 +22,9 @@ REQUIREMENTS = ['xmltodict==0.11.0']
 _LOGGER = logging.getLogger(__name__)
 _RESOURCE = 'http://www.zillow.com/webservice/GetZestimate.htm'
 
+ATTRIBUTION = "Data provided by Zillow.com"
+
 CONF_ZPID = 'zpid'
-CONF_ATTRIBUTION = "Data provided by Zillow.com"
 
 DEFAULT_NAME = 'Zestimate'
 NAME = 'zestimate'
@@ -49,7 +50,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=30)
 
 
-def setup_platform(hass, config, add_devices, discovery_info=None):
+def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the Zestimate sensor."""
     name = config.get(CONF_NAME)
     properties = config[CONF_ZPID]
@@ -59,7 +60,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     for zpid in properties:
         params['zpid'] = zpid
         sensors.append(ZestimateDataSensor(name, params))
-    add_devices(sensors, True)
+    add_entities(sensors, True)
 
 
 class ZestimateDataSensor(Entity):
@@ -93,7 +94,7 @@ class ZestimateDataSensor(Entity):
         if self.data is not None:
             attributes = self.data
         attributes['address'] = self.address
-        attributes[ATTR_ATTRIBUTION] = CONF_ATTRIBUTION
+        attributes[ATTR_ATTRIBUTION] = ATTRIBUTION
         return attributes
 
     @property

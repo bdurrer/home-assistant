@@ -5,7 +5,7 @@ import shutil
 
 import homeassistant.components.tts as tts
 from homeassistant.setup import setup_component
-from homeassistant.components.media_player import (
+from homeassistant.components.media_player.const import (
     SERVICE_PLAY_MEDIA, DOMAIN as DOMAIN_MP)
 from tests.common import (
     get_test_home_assistant, assert_setup_component, mock_service)
@@ -13,11 +13,11 @@ from tests.common import (
 from .test_init import mutagen_mock  # noqa
 
 
-class TestTTSYandexPlatform(object):
+class TestTTSYandexPlatform:
     """Test the speech component."""
 
     def setup_method(self):
-        """Setup things to be run when tests are started."""
+        """Set up things to be run when tests are started."""
         self.hass = get_test_home_assistant()
         self._base_url = "https://tts.voicetech.yandex.net/generate?"
 

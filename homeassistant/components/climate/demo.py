@@ -4,8 +4,9 @@ Demo platform that offers a fake climate device.
 For more details about this platform, please refer to the documentation
 https://home-assistant.io/components/demo/
 """
-from homeassistant.components.climate import (
-    ClimateDevice, ATTR_TARGET_TEMP_HIGH, ATTR_TARGET_TEMP_LOW,
+from homeassistant.components.climate import ClimateDevice
+from homeassistant.components.climate.const import (
+    ATTR_TARGET_TEMP_HIGH, ATTR_TARGET_TEMP_LOW,
     SUPPORT_TARGET_TEMPERATURE, SUPPORT_TARGET_HUMIDITY,
     SUPPORT_TARGET_HUMIDITY_LOW, SUPPORT_TARGET_HUMIDITY_HIGH,
     SUPPORT_AWAY_MODE, SUPPORT_HOLD_MODE, SUPPORT_FAN_MODE,
@@ -17,9 +18,9 @@ from homeassistant.const import TEMP_CELSIUS, TEMP_FAHRENHEIT, ATTR_TEMPERATURE
 SUPPORT_FLAGS = SUPPORT_TARGET_HUMIDITY_LOW | SUPPORT_TARGET_HUMIDITY_HIGH
 
 
-def setup_platform(hass, config, add_devices, discovery_info=None):
+def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the Demo climate devices."""
-    add_devices([
+    add_entities([
         DemoClimate('HeatPump', 68, TEMP_FAHRENHEIT, None, None, 77,
                     None, None, None, None, 'heat', None, None,
                     None, True),
@@ -186,22 +187,22 @@ class DemoClimate(ClimateDevice):
         self.schedule_update_ha_state()
 
     def set_humidity(self, humidity):
-        """Set new target temperature."""
+        """Set new humidity level."""
         self._target_humidity = humidity
         self.schedule_update_ha_state()
 
     def set_swing_mode(self, swing_mode):
-        """Set new target temperature."""
+        """Set new swing mode."""
         self._current_swing_mode = swing_mode
         self.schedule_update_ha_state()
 
     def set_fan_mode(self, fan_mode):
-        """Set new target temperature."""
+        """Set new fan mode."""
         self._current_fan_mode = fan_mode
         self.schedule_update_ha_state()
 
     def set_operation_mode(self, operation_mode):
-        """Set new target temperature."""
+        """Set new operation mode."""
         self._current_operation = operation_mode
         self.schedule_update_ha_state()
 
